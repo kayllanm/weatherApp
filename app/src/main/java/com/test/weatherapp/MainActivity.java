@@ -4,6 +4,9 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -12,10 +15,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.test.asyncTask.DownloadImageTask;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,17 +37,21 @@ import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
     protected LocationManager locationManager;
-    TextView txtLat;
     TextView WeatherData;
+    TextView SuburbName;
+    ImageView weatherIcon;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        txtLat = (TextView) findViewById(R.id.textview1);
         WeatherData = (TextView) findViewById(R.id.textview2);
-
+        SuburbName = (TextView) findViewById(R.id.SuburbName);
+        weatherIcon = (ImageView) findViewById(R.id.weather_icon);
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.VISIBLE);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -121,10 +138,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 //The “ask” value below is a field in the JSON Object that was
                 //retrieved from the BitcoinAverage API. It contains the current
                 //bitcoin price
-                Log.d("jsonResponse", "data: "+ jsonObject.toString());
-
+                JSONArray weather = jsonObject.getJSONArray("weather");
+                String icon = null;
+                for(int i=0; i<weather.length(); i++){
+                    JSONObject row = weather.getJSONObject(i);
+                    icon = row.getString("icon");
+                }
+                try{
+                    AsyncTask<String, Void, Bitmap> execute = new DownloadImageTask((ImageView) findViewById(R.id.weather_icon))
+                            .execute("https://openweathermap.org/img/wn/"+icon+"@2x.png");
+                    // R.id.imageView  -> Here imageView is id of your ImageView
+                }
+                catch(Exception ex)
+                {
+                    ex.printStackTrace();
+                }
                 //Now we can use the value in the mPriceTextView
-                WeatherData.setText(jsonObject.toString());
+                WeatherData.setText(weather.toString());
+                spinner.setVisibility(View.GONE);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -187,9 +218,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onLocationChanged(Location location) {
-        txtLat = (TextView) findViewById(R.id.textview1);
-        txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
         requestData("data/2.5/weather?lat=" + location.getLatitude() + "&lon="+location.getLongitude()+"&appid=559150d9b90b9ea042a41cb1f20c96e3");
+        Geocoder gcd = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+
+            String locality = addresses.get(0).getLocality();
+            SuburbName.setText(locality);
+            Log.d("locality", locality);
+        }
     }
 
     @Override
