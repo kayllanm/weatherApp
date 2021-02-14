@@ -1,17 +1,12 @@
 <resources>
     <string name="app_name">MyApp</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="hello_world">hello world</string>
     <string name="title_location_permission">Location Services</string>
     <string name="text_location_permission">Would you like to enable location services</string>
-    <string name="ok">Ok</string>
+    <string name="yes">Yes</string>
     <string name="weather">weather</string>
+    <string name="refresh_text">Refresh</string>
+    <string name="request_permission">enable Location services</string>
+    <string name="permission_denied_text">Permission for location services was denied please click enable location services</string>
 </resources>

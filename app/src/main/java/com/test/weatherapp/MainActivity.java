@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,11 +40,12 @@ import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
     protected LocationManager locationManager;
-    TextView SuburbName, full_date, temperature, clouds, temp_max_min, feels_like;
+    TextView SuburbName, full_date, temperature, clouds, temp_max_min, feels_like, Error;
+    Button refresh_button;
     ImageView weatherIcon;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private ProgressBar spinner;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, ''yy" );
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, ''yy");
     private Calendar calendar = Calendar.getInstance();
 
     @Override
@@ -57,9 +59,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         clouds = (TextView) findViewById(R.id.clouds);
         temp_max_min = (TextView) findViewById(R.id.temp_max_min);
         feels_like = (TextView) findViewById(R.id.feels_like);
-        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        refresh_button = (Button) findViewById(R.id.refresh_button);
+        Error = (TextView) findViewById(R.id.Error);
+        spinner = (ProgressBar) findViewById(R.id.progressBar1);
         spinner.setVisibility(View.VISIBLE);
 
+        requestLocation();
+    }
+
+    public void requestLocation(){
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -69,12 +77,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            Log.d("hasPermission","app does not have permission");
+            Log.d("hasPermission", "app does not have permission");
             checkLocationPermission();
             return;
+        }else{
+            refresh_button.setText("Refresh");
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-
     }
 
     public boolean checkLocationPermission() {
@@ -92,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.title_location_permission)
                         .setMessage(R.string.text_location_permission)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
@@ -126,6 +135,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         //that’s defined below
 
         downloader.execute(requestPackage);
+    }
+
+    public void updateLocation(View view) {
+        spinner.setVisibility(View.VISIBLE);
+        Log.d(">>>>>>>>>>>>", "update location");
+        requestLocation();
     }
 
     private class Downloader extends AsyncTask<RequestPackage, String, String> {
@@ -190,6 +205,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
+                    refresh_button.setText("Refresh");
+                    Error.setText("");
                     if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -200,8 +217,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
                 } else {
 
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    spinner.setVisibility(View.GONE);
+                    Error.setText(R.string.permission_denied_text);
 
                 }
                 return;
@@ -238,13 +255,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         requestData("data/2.5/weather?lat=" + location.getLatitude() + "&lon="+location.getLongitude()+"&appid=559150d9b90b9ea042a41cb1f20c96e3");
         Geocoder gcd = new Geocoder(this, Locale.getDefault());
         List<Address> addresses = null;
+
         try {
             addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (addresses != null && addresses.size() > 0) {
 
+        if (addresses != null && addresses.size() > 0) {
             String locality = addresses.get(0).getLocality();
             String subLocality = addresses.get(0).getSubLocality();
             SuburbName.setText(subLocality +", "+locality);

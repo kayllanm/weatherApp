@@ -11,11 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="20dp"
+        android:orientation="vertical"
         tools:context=".MainActivity">
         <LinearLayout
+            android:id="@+id/weather_container"
             android:layout_width="match_parent"
             android:layout_height="200sp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_weight=".50">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -79,13 +82,20 @@
 
         </LinearLayout>
 
-
-        <TextView
-            android:id="@+id/textview2"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="false"
-            android:layout_centerInParent="true" />
+            android:layout_weight=".50"
+            android:layout_below="@id/weather_container">
+
+            <Button
+                android:id="@+id/refresh_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/request_permission"
+                android:onClick="updateLocation"/>
+        </LinearLayout>
 
     </RelativeLayout>
 
@@ -96,5 +106,12 @@
         android:layout_height="wrap_content"
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center" />
+
+    <TextView
+        android:id="@+id/Error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="125dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
