@@ -9,4 +9,5 @@
     <string name="refresh_text">Refresh</string>
     <string name="request_permission">enable Location services</string>
     <string name="permission_denied_text">Permission for location services was denied please click enable location services</string>
+    <string name="no_locality_text">unable to get Suburb</string>
 </resources>

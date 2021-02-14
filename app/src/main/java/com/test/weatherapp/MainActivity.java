@@ -259,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         try {
             addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
         } catch (IOException e) {
+            full_date.setText(R.string.no_locality_text);
             e.printStackTrace();
         }
 
