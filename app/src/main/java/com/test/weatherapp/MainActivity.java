@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.test.asyncTask.DownloadImageTask;
+import com.test.asyncTask.DownloaderTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,11 +55,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
         SuburbName = (TextView) findViewById(R.id.SuburbName);
         full_date = (TextView) findViewById(R.id.full_date);
-        temperature = (TextView) findViewById(R.id.temperature);
-        weatherIcon = (ImageView) findViewById(R.id.weather_icon);
-        clouds = (TextView) findViewById(R.id.clouds);
-        temp_max_min = (TextView) findViewById(R.id.temp_max_min);
-        feels_like = (TextView) findViewById(R.id.feels_like);
         refresh_button = (Button) findViewById(R.id.refresh_button);
         Error = (TextView) findViewById(R.id.Error);
         spinner = (ProgressBar) findViewById(R.id.progressBar1);
@@ -131,67 +127,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         requestPackage.setMethod("POST");
         requestPackage.setUrl(url);
 
-        Downloader downloader = new Downloader(); //Instantiation of the Async task
-        //that’s defined below
-
-        downloader.execute(requestPackage);
+        AsyncTask<RequestPackage, String, String> execute = new DownloaderTask(
+            temperature = (TextView) findViewById(R.id.temperature),
+            weatherIcon = (ImageView) findViewById(R.id.weather_icon),
+            clouds = (TextView) findViewById(R.id.clouds),
+            temp_max_min = (TextView) findViewById(R.id.temp_max_min),
+            feels_like = (TextView) findViewById(R.id.feels_like),
+            spinner = (ProgressBar) findViewById(R.id.progressBar1))
+        .execute(requestPackage);
     }
 
     public void updateLocation(View view) {
         spinner.setVisibility(View.VISIBLE);
         Log.d(">>>>>>>>>>>>", "update location");
         requestLocation();
-    }
-
-    private class Downloader extends AsyncTask<RequestPackage, String, String> {
-        @Override
-        protected String doInBackground(RequestPackage... params) {
-            return HttpManager.getData(params[0]);
-        }
-
-        //The String that is returned in the doInBackground() method is sent to the
-        // onPostExecute() method below. The String should contain JSON data.
-        @Override
-        protected void onPostExecute(String result) {
-            try {
-                //We need to convert the string in result to a JSONObject
-                JSONObject jsonObject = new JSONObject(result);
-
-                //The “ask” value below is a field in the JSON Object that was
-                //retrieved from the BitcoinAverage API. It contains the current
-                //bitcoin price
-                JSONArray weather = jsonObject.getJSONArray("weather");
-                JSONObject main = jsonObject.getJSONObject("main");
-                String icon = null, description = null;
-                double feel_like, temp_max, temp_min;
-                feel_like = main.getInt("feels_like") - 273.15F;
-                temp_max = main.getInt("temp_max") - 273.15F;
-                temp_min = main.getInt("temp_min") - 273.15F;
-                for(int i=0; i<weather.length(); i++){
-                    JSONObject row = weather.getJSONObject(i);
-                    icon = row.getString("icon");
-                    description = row.getString("description");
-                }
-                try{
-                    AsyncTask<String, Void, Bitmap> execute = new DownloadImageTask((ImageView) findViewById(R.id.weather_icon))
-                            .execute("https://openweathermap.org/img/wn/"+icon+"@2x.png");
-                    // R.id.imageView  -> Here imageView is id of your ImageView
-                }
-                catch(Exception ex)
-                {
-                    ex.printStackTrace();
-                }
-
-                //Now we can use the value in the mPriceTextView
-                temperature.setText((Math.round(feel_like))+ " \u2103");
-                clouds.setText(description);
-                temp_max_min.setText((Math.round(temp_max))+ " \u2103 / "+ (Math.round(temp_min))+ " \u2103" );
-                feels_like.setText("Feels like "+(Math.round(feel_like))+ " \u2103");
-                spinner.setVisibility(View.GONE);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
