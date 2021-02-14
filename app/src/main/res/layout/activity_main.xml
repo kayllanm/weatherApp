@@ -12,36 +12,72 @@
         android:layout_height="match_parent"
         android:layout_margin="20dp"
         tools:context=".MainActivity">
-
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp">
+            android:layout_height="200sp"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:id="@+id/scrollView"
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="20dp"
-                tools:context=".MainActivity">
+                android:layout_weight=".50">
                 <TextView
                     android:id="@+id/SuburbName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="false"
-                    android:layout_centerInParent="true" />
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="15dp"
+                    android:paddingTop="10px" />
+
+                <TextView
+                    android:id="@+id/full_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="40dp" />
 
                 <ImageView
                     android:id="@+id/weather_icon"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_alignBottom="@id/SuburbName" />
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="60dp" />
 
+                <TextView
+                    android:id="@+id/temperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@id/weather_icon"
+                    android:layout_marginLeft="80dp"
+                    android:layout_marginTop="80dp"
+                    android:textSize="45sp"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight=".50">
+                <TextView
+                    android:id="@+id/clouds"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="80dp"/>
 
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/temp_max_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="105dp"/>
 
-        </HorizontalScrollView>
+                <TextView
+                    android:id="@+id/feels_like"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="125dp" />
+            </RelativeLayout>
 
-
+        </LinearLayout>
 
 
         <TextView

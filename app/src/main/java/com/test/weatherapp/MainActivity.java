@@ -27,6 +27,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,19 +39,24 @@ import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
     protected LocationManager locationManager;
-    TextView WeatherData;
-    TextView SuburbName;
+    TextView SuburbName, full_date, temperature, clouds, temp_max_min, feels_like;
     ImageView weatherIcon;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private ProgressBar spinner;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, ''yy" );
+    private Calendar calendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        WeatherData = (TextView) findViewById(R.id.textview2);
         SuburbName = (TextView) findViewById(R.id.SuburbName);
+        full_date = (TextView) findViewById(R.id.full_date);
+        temperature = (TextView) findViewById(R.id.temperature);
         weatherIcon = (ImageView) findViewById(R.id.weather_icon);
+        clouds = (TextView) findViewById(R.id.clouds);
+        temp_max_min = (TextView) findViewById(R.id.temp_max_min);
+        feels_like = (TextView) findViewById(R.id.feels_like);
         spinner = (ProgressBar)findViewById(R.id.progressBar1);
         spinner.setVisibility(View.VISIBLE);
 
@@ -62,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            Log.d("hasPermission","app does not havee permission");
+            Log.d("hasPermission","app does not have permission");
             checkLocationPermission();
             return;
         }
@@ -139,10 +146,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 //retrieved from the BitcoinAverage API. It contains the current
                 //bitcoin price
                 JSONArray weather = jsonObject.getJSONArray("weather");
-                String icon = null;
+                JSONObject main = jsonObject.getJSONObject("main");
+                String icon = null, description = null;
+                double feel_like, temp_max, temp_min;
+                feel_like = main.getInt("feels_like") - 273.15F;
+                temp_max = main.getInt("temp_max") - 273.15F;
+                temp_min = main.getInt("temp_min") - 273.15F;
                 for(int i=0; i<weather.length(); i++){
                     JSONObject row = weather.getJSONObject(i);
                     icon = row.getString("icon");
+                    description = row.getString("description");
                 }
                 try{
                     AsyncTask<String, Void, Bitmap> execute = new DownloadImageTask((ImageView) findViewById(R.id.weather_icon))
@@ -153,8 +166,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 {
                     ex.printStackTrace();
                 }
+
                 //Now we can use the value in the mPriceTextView
-                WeatherData.setText(weather.toString());
+                temperature.setText((Math.round(feel_like))+ " \u2103");
+                clouds.setText(description);
+                temp_max_min.setText((Math.round(temp_max))+ " \u2103 / "+ (Math.round(temp_min))+ " \u2103" );
+                feels_like.setText("Feels like "+(Math.round(feel_like))+ " \u2103");
                 spinner.setVisibility(View.GONE);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -229,8 +246,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if (addresses != null && addresses.size() > 0) {
 
             String locality = addresses.get(0).getLocality();
-            SuburbName.setText(locality);
-            Log.d("locality", locality);
+            String subLocality = addresses.get(0).getSubLocality();
+            SuburbName.setText(subLocality +", "+locality);
+            String date = dateFormat.format(calendar.getTime());
+            full_date.setText(date);
         }
     }
 
